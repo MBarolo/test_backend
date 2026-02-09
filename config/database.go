@@ -75,7 +75,8 @@ func createTables() error {
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		cost_per_minute INTEGER NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS rentals (
@@ -89,6 +90,8 @@ func createTables() error {
         start_longitude REAL NOT NULL,
         end_latitude REAL,
         end_longitude REAL,
+		duration INTEGER,
+		cost INTEGER,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE,
         CHECK (rental_status IN ('running', 'ended'))

@@ -75,6 +75,24 @@ func convertValue(value interface{}, field reflect.Value) {
 		return
 	}
 
+	// Si el campo es un puntero, manejarlo especialmente
+	if field.Kind() == reflect.Ptr {
+		// Crear un nuevo valor del tipo apuntado
+		elemType := field.Type().Elem()
+		newElem := reflect.New(elemType).Elem()
+
+		// Convertir el valor al elemento
+		convertValue(value, newElem)
+
+		// Si la conversión fue exitosa, asignar el puntero
+		if newElem.IsValid() {
+			ptr := reflect.New(elemType)
+			ptr.Elem().Set(newElem)
+			field.Set(ptr)
+		}
+		return
+	}
+
 	// Si el valor es []uint8, intenta convertirlo al tipo correcto
 	if data, ok := value.([]uint8); ok {
 		switch field.Kind() {

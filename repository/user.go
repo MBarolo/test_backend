@@ -75,8 +75,8 @@ func (r *UserRepository) Create(user *models.User) (int64, error) {
 }
 
 func (r *UserRepository) Update(user *models.User) (int64, error) {
-	query := "UPDATE " + TableNameUser + " SET email = ?, hashed_password = ?, first_name = ?, last_name = ?, updated_at = ?"
-	res, err := r.db.Exec(query, user.Email, user.HashedPassword, user.FirstName, user.LastName, time.Now())
+	query := "UPDATE " + TableNameUser + " SET email = ?, hashed_password = ?, first_name = ?, last_name = ?, updated_at = ? WHERE id = ?"
+	res, err := r.db.Exec(query, user.Email, user.HashedPassword, user.FirstName, user.LastName, time.Now(), user.Id)
 	if err != nil {
 		return -1, err
 	}
