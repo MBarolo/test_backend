@@ -23,6 +23,17 @@ func comparePasswords(hash string, password string) error {
 	return nil
 }
 
+// Login godoc
+// @Summary      Iniciar sesión
+// @Description  Autenticar usuario y obtener token JWT
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body      models.Login  true  "Credenciales de inicio de sesión"
+// @Success      200          {object}  map[string]interface{}
+// @Failure      400          {object}  map[string]interface{}
+// @Failure      401          {object}  map[string]interface{}
+// @Router       /auth/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var loginData models.Login
 	if err := json.NewDecoder(r.Body).Decode(&loginData); err != nil {
@@ -54,6 +65,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	utils.JsonResponse(w, http.StatusOK, "Sesión iniciada correctamente", models.LoginResponse{Token: token, Expire: exp.String()})
 }
 
+// Register godoc
+// @Summary      Registrar usuario
+// @Description  Crear una nueva cuenta de usuario
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body      forms.UserForm  true  "Datos del nuevo usuario"
+// @Success      201   {object}  map[string]interface{}
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /auth/register [post]
 func Register(w http.ResponseWriter, r *http.Request) {
 	var userForm *forms.UserForm
 	if err := json.NewDecoder(r.Body).Decode(&userForm); err != nil {

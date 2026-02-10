@@ -1,0 +1,619 @@
+definitions:
+  forms.BikeForm:
+    properties:
+      cost_per_minute:
+        type: integer
+      is_available:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  forms.RentalForm:
+    properties:
+      bike_id:
+        type: integer
+      duration:
+        description: minutes
+        type: integer
+      end_latitude:
+        type: number
+      end_longitude:
+        type: number
+      end_time:
+        type: string
+      rental_status:
+        $ref: '#/definitions/models.RentalStatus'
+      start_latitude:
+        type: number
+      start_longitude:
+        type: number
+      start_time:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  forms.StartEndRentalForm:
+    properties:
+      bike_id:
+        type: integer
+    type: object
+  forms.UserForm:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      hashed_password:
+        type: string
+      last_name:
+        type: string
+    type: object
+  models.Login:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.RentalStatus:
+    enum:
+    - running
+    - ended
+    type: string
+    x-enum-varnames:
+    - RUNNING
+    - ENDED
+info:
+  contact: {}
+paths:
+  /admin/bikes:
+    get:
+      consumes:
+      - application/json
+      description: Retorna todas las bicicletas del sistema (admin)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Obtener todas las bicicletas
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Registrar una nueva bicicleta en el sistema (admin)
+      parameters:
+      - description: Datos de la nueva bicicleta
+        in: body
+        name: bike
+        required: true
+        schema:
+          $ref: '#/definitions/forms.BikeForm'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Crear bicicleta
+      tags:
+      - admin
+  /admin/bikes/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Modificar los datos de una bicicleta existente (admin)
+      parameters:
+      - description: ID de la bicicleta
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos actualizados de la bicicleta
+        in: body
+        name: bike
+        required: true
+        schema:
+          $ref: '#/definitions/forms.BikeForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Actualizar bicicleta
+      tags:
+      - admin
+  /admin/rentals:
+    get:
+      consumes:
+      - application/json
+      description: Listar todos los alquileres del sistema (admin)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Obtener todos los alquileres
+      tags:
+      - admin
+  /admin/rentals/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Obtener información de un alquiler específico (admin)
+      parameters:
+      - description: ID del alquiler
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Obtener alquiler por ID
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      description: Modificar información de un alquiler específico (admin)
+      parameters:
+      - description: ID del alquiler
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos actualizados del alquiler
+        in: body
+        name: rental
+        required: true
+        schema:
+          $ref: '#/definitions/forms.RentalForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Actualizar alquiler
+      tags:
+      - admin
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Listar todos los usuarios del sistema (admin)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Obtener todos los usuarios
+      tags:
+      - admin
+  /admin/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Obtener información de un usuario específico (admin)
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Obtener usuario por ID
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      description: Modificar información de un usuario específico (admin)
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos actualizados del usuario
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/forms.UserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Actualizar usuario
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autenticar usuario y obtener token JWT
+      parameters:
+      - description: Credenciales de inicio de sesión
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Iniciar sesión
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Crear una nueva cuenta de usuario
+      parameters:
+      - description: Datos del nuevo usuario
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/forms.UserForm'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Registrar usuario
+      tags:
+      - auth
+  /bikes/available:
+    get:
+      consumes:
+      - application/json
+      description: Retorna las bicicletas disponibles para alquilar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener bicicletas disponibles
+      tags:
+      - bikes
+  /rentals/end:
+    post:
+      consumes:
+      - application/json
+      description: Finalizar el alquiler activo de una bicicleta
+      parameters:
+      - description: ID de la bicicleta a devolver
+        in: body
+        name: rental
+        required: true
+        schema:
+          $ref: '#/definitions/forms.StartEndRentalForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Finalizar alquiler
+      tags:
+      - rentals
+  /rentals/history:
+    get:
+      consumes:
+      - application/json
+      description: Obtener el historial de alquileres del usuario autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Historial de alquileres
+      tags:
+      - rentals
+  /rentals/start:
+    post:
+      consumes:
+      - application/json
+      description: Alquilar una bicicleta disponible
+      parameters:
+      - description: ID de la bicicleta a alquilar
+        in: body
+        name: rental
+        required: true
+        schema:
+          $ref: '#/definitions/forms.StartEndRentalForm'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Iniciar alquiler
+      tags:
+      - rentals
+  /users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Obtener información del usuario autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener perfil
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: Modificar información del usuario autenticado
+      parameters:
+      - description: Datos actualizados del usuario
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/forms.UserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Actualizar perfil
+      tags:
+      - users
+swagger: "2.0"

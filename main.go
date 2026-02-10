@@ -8,7 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"github.com/mbarolo/test_back/config"
+	_ "github.com/mbarolo/test_back/docs"
 	"github.com/mbarolo/test_back/routes"
 	"github.com/mbarolo/test_back/utils"
 )
@@ -29,6 +32,11 @@ func main() {
 	app := chi.NewRouter()
 	app.Use(chimiddleware.Logger)
 	app.Use(chimiddleware.Recoverer)
+
+	// Swagger para documentacion de api
+	app.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
+	))
 
 	// se define la response default para 404
 	app.NotFound(func(w http.ResponseWriter, r *http.Request) {

@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"crypto/subtle"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -64,8 +66,8 @@ func GenerateToken(user models.User) (string, time.Time, error) {
 	return tokenString, expirationTime, nil
 }
 
-// ValidateToken: Valida un token json
-func ValidateToken(tokenString string) (*Claims, error) {
+// validateToken: Valida un token json
+func validateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -96,19 +98,64 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			parts := strings.Split(header, " ")
 			if len(parts) == 2 && parts[0] == "Bearer" {
 				token = parts[1]
+			} else {
+				utils.JsonResponse(w, http.StatusUnauthorized, "Estructura de header de autorización inesperada", nil)
+				return
 			}
 		} else {
 			utils.JsonResponse(w, http.StatusUnauthorized, "Token no proporcionado", nil)
 			return
 		}
 
-		claims, err := ValidateToken(token)
+		claims, err := validateToken(token)
 		if err != nil {
 			utils.JsonResponse(w, http.StatusUnauthorized, "Error al validar el token: "+err.Error(), nil)
 			return
 		}
 
 		ctx := context.WithValue(r.Context(), "claims", claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// validateAdminCredentials compara las credenciales del encabezado de autorización con las del .env
+func validateAdminCredentials(creds string) (bool, error) {
+	adminCredentials, ok := os.LookupEnv("ADMIN_CREDENTIALS")
+	if !ok {
+		return false, errors.New("credenciales de administrador no presentes en el entorno")
+	}
+
+	if _, err := base64.StdEncoding.DecodeString(creds); err != nil {
+		return false, errors.New("credenciales no son un base64 válido")
+	}
+
+	return subtle.ConstantTimeCompare([]byte(adminCredentials), []byte(creds)) == 1, nil
+}
+
+// Middleware para rutas admin
+func AdminMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		header := r.Header.Get("Authorization")
+		creds := ""
+		if header != "" {
+			parts := strings.Split(header, " ")
+			if len(parts) == 2 && parts[0] == "Basic" {
+				creds = parts[1]
+			} else {
+				utils.JsonResponse(w, http.StatusUnauthorized, "Estructura de header de autorización inesperada", nil)
+				return
+			}
+		}
+
+		if valid, err := validateAdminCredentials(creds); err != nil {
+			utils.JsonResponse(w, http.StatusUnauthorized, "Error al validar las credenciales"+err.Error(), nil)
+			return
+		} else if !valid {
+			utils.JsonResponse(w, http.StatusUnauthorized, "Credenciales inválidas", nil)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "claims", "")
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

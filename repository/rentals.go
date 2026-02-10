@@ -15,6 +15,18 @@ func NewRentalRepository(db *sql.DB) *RentalRepository {
 	return &RentalRepository{db}
 }
 
+func (r *RentalRepository) GetAll() ([]*models.Rental, error) {
+	query := "SELECT * FROM " + TableNameRental
+	rentals, err := utils.GenericScanAll[models.Rental](r.db, query)
+	if err != nil {
+		return nil, err
+	}
+	if len(rentals) == 0 {
+		return []*models.Rental{}, nil
+	}
+	return rentals, nil
+}
+
 func (r *RentalRepository) GetUserHistory(userId int64) ([]*models.Rental, error) {
 	query := "SELECT * FROM " + TableNameRental + " WHERE user_id = ?"
 	rentals, err := utils.GenericScanAll[models.Rental](r.db, query, userId)

@@ -112,3 +112,65 @@ func GetRentalHistory(userId int64) ([]*models.Rental, error) {
 
 	return rentals, nil
 }
+
+func GetAllRentals() ([]*models.Rental, error) {
+	rentals, err := rentalRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return rentals, err
+}
+
+func GetRentalById(id int64) (*models.Rental, error) {
+	rental, err := rentalRepo.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return rental, nil
+}
+
+func UpdateRental(id int64, updatedRental *forms.RentalForm) (*models.Rental, error) {
+	originalRental, err := GetRentalById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if updatedRental.UserID != nil {
+		originalRental.UserId = *updatedRental.UserID
+	}
+	if updatedRental.BikeID != nil {
+		originalRental.BikeId = *updatedRental.BikeID
+	}
+	if updatedRental.Status != nil {
+		originalRental.RentalStatus = *updatedRental.Status
+	}
+	if updatedRental.StartTime != nil {
+		originalRental.StartTime = *updatedRental.StartTime
+	}
+	if updatedRental.EndTime != nil {
+		originalRental.EndTime = updatedRental.EndTime
+	}
+	if updatedRental.StartLatitude != nil {
+		originalRental.StartLatitude = *updatedRental.StartLatitude
+	}
+	if updatedRental.StartLongitude != nil {
+		originalRental.StartLongitude = *updatedRental.StartLongitude
+	}
+	if updatedRental.EndLatitude != nil {
+		originalRental.EndLatitude = updatedRental.EndLatitude
+	}
+	if updatedRental.EndLongitude != nil {
+		originalRental.EndLongitude = updatedRental.EndLongitude
+	}
+	if updatedRental.Duration != nil {
+		originalRental.Duration = updatedRental.Duration
+	}
+
+	_, err = rentalRepo.Update(originalRental)
+	if err != nil {
+		return nil, err
+	}
+
+	return originalRental, nil
+}

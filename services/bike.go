@@ -49,6 +49,7 @@ func CreateBike(bike *models.Bike) (*models.Bike, error) {
 
 	id, err := bikeRepo.CreateBike(bike)
 	if err != nil {
+		log.Println("Error al crear la bicicleta: ", err.Error())
 		return nil, err
 	}
 
@@ -60,6 +61,7 @@ func CreateBike(bike *models.Bike) (*models.Bike, error) {
 func UpdateBike(id int64, updatedBike *forms.BikeForm) (*models.Bike, error) {
 	originalBike, err := GetBikeById(id)
 	if err != nil {
+		log.Println("Error al obtener la bicicleta original: ", err.Error())
 		return nil, err
 	}
 
@@ -77,6 +79,7 @@ func UpdateBike(id int64, updatedBike *forms.BikeForm) (*models.Bike, error) {
 	}
 
 	if err := originalBike.ValidateFields(); err != nil {
+		log.Println("Error al validar los campos actualizados de la bicicleta: ", err.Error())
 		return nil, err
 	}
 
@@ -84,6 +87,7 @@ func UpdateBike(id int64, updatedBike *forms.BikeForm) (*models.Bike, error) {
 
 	_, err = bikeRepo.UpdateBike(originalBike)
 	if err != nil {
+		log.Println("Error al actualizar la bicicleta: ", err.Error())
 		return nil, err
 	}
 
